@@ -1,5 +1,6 @@
 const express = require('express');
 const {ObjectId} = require('mongodb');
+const  mongooseOr = require('mongoose');
 
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
@@ -43,6 +44,27 @@ app.get('/todos/:id', (req, res) => {
         res.status(404).send();
     } else {
         Todo.findById(id)
+            .then((todo) => {
+                if (todo) {
+                    res.send({ todo });
+                } else {
+                    res.status(404).send();
+                }
+            })
+            .catch((err) => {
+                res.status(400).send();
+            })
+    }
+
+});
+
+app.delete('/todos/:id', (req, res) => {
+    let id = req.params.id;
+
+    if (!ObjectId.isValid(id)) {
+        res.status(404).send();
+    } else {
+        Todo.findByIdAndRemove(id)
             .then((todo) => {
                 if (todo) {
                     res.send({ todo });
